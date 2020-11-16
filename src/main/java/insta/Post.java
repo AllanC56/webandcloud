@@ -46,8 +46,8 @@ public class Post {
         c.setProperty("likeCount", like +1);
     }
 
-    public static void unlike(User usr, Post p){
-
+    public static void unlike(User usr, Post p) throws EntityNotFoundException {
+        p.unlike(usr);
     }
 
     //TODO premier jet, rendre thread safe
