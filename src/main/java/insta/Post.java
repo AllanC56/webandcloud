@@ -31,27 +31,54 @@ public class Post {
         this(usr, image, null);
     }
 
+    /**
+     * method to like a post
+     * @param usr usr who likes the post
+     * @param p the post to like
+     * @throws EntityNotFoundException
+     */
     public static void like(User usr, Post p) throws EntityNotFoundException {
         p.like(usr);
     }
 
     //TODO premier jet, rendre thread safe
+    /**
+     * method to like the current post
+     * @param usr the user liking the current post
+     * @throws EntityNotFoundException
+     */
     public void like(User usr) throws EntityNotFoundException {
+        //retrieve th datastore and the entity corresponding to the post
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
         Entity c = datastore.get(this.entity.getKey());
+
+        //retrieving the list of users who liked the post, updating it and updating the entity
         HashSet<String> likers = (HashSet<String>) c.getProperty("likers");
         likers.add(usr.getId());
         c.setProperty("likers",likers);
 
+        //retrieving the number of like, updating it and updating the entity with the new value
         int like = (int) c.getProperty("likeCount");
         c.setProperty("likeCount", like +1);
     }
 
+    /**
+     * method to for a given user to unlike a given post
+     * @param usr the user who wants to unlike a post
+     * @param p the post to unlike
+     * @throws EntityNotFoundException
+     */
     public static void unlike(User usr, Post p) throws EntityNotFoundException {
         p.unlike(usr);
     }
 
     //TODO premier jet, rendre thread safe
+
+    /**
+     * a mehtod for a given user to unlike the current post
+     * @param usr the user who wants to dislike the given post
+     * @throws EntityNotFoundException
+     */
     public void unlike(User usr) throws EntityNotFoundException {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
         Entity c = datastore.get(this.entity.getKey());
