@@ -9,7 +9,6 @@ public class User {
     private String email;
     private String bio;
     private String avatarUrl;
-    protected DatastoreService datastore;
     private Entity entity;
 
     public User(String name, String email) {
@@ -17,7 +16,7 @@ public class User {
     }
 
     public User(String name, String email, String bio, String avatarUrl, String token) {
-        this.datastore  = DatastoreServiceFactory.getDatastoreService();
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
 
         this.entity = new Entity("User", email);
         this.entity.setProperty("name", name);
@@ -35,6 +34,8 @@ public class User {
         this.email = email;
         this.bio = bio;
         this.avatarUrl = avatarUrl;
+
+        datastore.put(this.entity);
     }
 
     /**
