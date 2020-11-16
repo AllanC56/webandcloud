@@ -56,11 +56,11 @@ public class User {
         entityA.setProperty("following", following);
 
         //retrieve the list of users following user b
-        HashSet<String> followers = (HashSet<String>) entityA.getProperty("followers");
+        HashSet<String> followers = (HashSet<String>) entityB.getProperty("followers");
         //adding a to the list of followers
         followers.add(a.getId());
         //updating the entity with the new list
-        entityA.setProperty("followers", followers);
+        entityB.setProperty("followers", followers);
 
     }
 
@@ -120,11 +120,11 @@ public class User {
         entityA.setProperty("following", following);
 
         //retrieve the list of users following user b
-        HashSet<String> followers = (HashSet<String>) entityA.getProperty("followers");
+        HashSet<String> followers = (HashSet<String>) entityB.getProperty("followers");
         //removing a from the list of followers
         followers.remove(a.getId());
         //updating the entity with the new list
-        entityA.setProperty("followers", followers);
+        entityB.setProperty("followers", followers);
 
     }
 
@@ -134,6 +134,23 @@ public class User {
      */
     public void unFollow(User a) throws EntityNotFoundException {
         unFollow(this, a);
+    }
+
+    /**
+     * remove a post
+     * @param postId the id of the post to remove
+     */
+    public void removePost(String postId) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.entity.getKey());
+
+        //retrieve the list of posts by the user
+        HashSet<String> posts = (HashSet<String>) entity.getProperty("posts");
+        //removing the post from the list of posts
+        posts.remove(postId);
+        //updating the entity with the new list
+        entity.setProperty("posts", posts);
     }
 
     public Entity getEntity(){
