@@ -80,17 +80,17 @@ public class User {
      */
     public void post(String image, String description) throws EntityNotFoundException {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity e = datastore.get(this.entity.getKey());
+        this.entity = datastore.get(this.entity.getKey());
 
         //create the post
         Post p = new Post(this, image, description);
 
         //retrieve the user's posts list
-        HashSet<String> posts = (HashSet<String>) e.getProperty("posts");
+        HashSet<String> posts = (HashSet<String>) this.entity.getProperty("posts");
         //update the list
         posts.add(p.getId());
         //update the entity woth the new list
-        e.setProperty("posts", posts);
+        this.entity.setProperty("posts", posts);
     }
 
     /**
@@ -144,14 +144,14 @@ public class User {
     public void removePost(String postId) throws EntityNotFoundException {
         //retrieve the datastore and the entity corresponding to the user
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entity = datastore.get(this.entity.getKey());
+        this.entity = datastore.get(this.entity.getKey());
 
         //retrieve the list of posts by the user
-        HashSet<String> posts = (HashSet<String>) entity.getProperty("posts");
+        HashSet<String> posts = (HashSet<String>) this.entity.getProperty("posts");
         //removing the post from the list of posts
         posts.remove(postId);
         //updating the entity with the new list
-        entity.setProperty("posts", posts);
+        this.entity.setProperty("posts", posts);
     }
 
     public Entity getEntity(){
