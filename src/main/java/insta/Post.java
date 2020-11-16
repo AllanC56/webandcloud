@@ -5,26 +5,29 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.repackaged.com.google.datastore.v1.Datastore;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 
 public class Post {
-    private String id;
+    private final String id;
     private Entity entity;
 
     protected Post(User usr, String image, String desc){
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        this.id =  usr.getId() + new Timestamp(new Date().getTime());
+        Timestamp ts = new Timestamp(new Date().getTime());
+        this.id =  usr.getId() + ts;
 
         this.entity = new Entity("Post",id);
         this.entity.setProperty("User",usr.getId());
         this.entity.setProperty("description", desc);
+        this.entity.setProperty("timestamp", ts);
         this.entity.setProperty("image", image);
         this.entity.setProperty("likers",new HashSet<String>());
         this.entity.setProperty("likeCount", 0);
+
+        datastore.put(this.entity);
     }
 
     protected Post(User usr, String image){
@@ -48,18 +51,18 @@ public class Post {
      * @throws EntityNotFoundException
      */
     public void like(User usr) throws EntityNotFoundException {
-        //retrieve th datastore and the entity corresponding to the post
+        //retrieve th datastore and the  this.entityorresponding to the post
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity c = datastore.get(this.entity.getKey());
+        this.entity = datastore.get(this.entity.getKey());
 
         //retrieving the list of users who liked the post, updating it and updating the entity
-        HashSet<String> likers = (HashSet<String>) c.getProperty("likers");
+        HashSet<String> likers = (HashSet<String>) this.entity.getProperty("likers");
         likers.add(usr.getId());
-        c.setProperty("likers",likers);
+        this.entity.setProperty("likers",likers);
 
         //retrieving the number of like, updating it and updating the entity with the new value
-        int like = (int) c.getProperty("likeCount");
-        c.setProperty("likeCount", like +1);
+        int like = (int) this.entity.getProperty("likeCount");
+        this.entity.setProperty("likeCount", like +1);
     }
 
     /**
@@ -73,7 +76,6 @@ public class Post {
     }
 
     //TODO premier jet, rendre thread safe
-
     /**
      * a mehtod for a given user to unlike the current post
      * @param usr the user who wants to dislike the given post
@@ -81,13 +83,13 @@ public class Post {
      */
     public void unlike(User usr) throws EntityNotFoundException {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity c = datastore.get(this.entity.getKey());
-        HashSet<String> likers = (HashSet<String>) c.getProperty("likers");
+        this.entity = datastore.get(this.entity.getKey());
+        HashSet<String> likers = (HashSet<String>) this.entity.getProperty("likers");
         likers.remove(usr.getId());
-        c.setProperty("likers",likers);
+        this.entity.setProperty("likers",likers);
 
-        int like = (int) c.getProperty("likeCount");
-        c.setProperty("likeCount", like - 1);
+        int like = (int) this.entity.getProperty("likeCount");
+        this.entity.setProperty("likeCount", like - 1);
     }
 
     public String getId(){
