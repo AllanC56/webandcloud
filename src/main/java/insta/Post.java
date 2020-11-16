@@ -5,18 +5,18 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.repackaged.com.google.datastore.v1.Datastore;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 
 public class Post {
-    protected DatastoreService datastore;
     private String id;
     private Entity entity;
 
-    public Post(User usr, String image, String desc){
-        this.datastore  = DatastoreServiceFactory.getDatastoreService();
+    protected Post(User usr, String image, String desc){
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
         this.id =  usr.getId() + new Timestamp(new Date().getTime());
 
         this.entity = new Entity("Post",id);
@@ -27,7 +27,7 @@ public class Post {
         this.entity.setProperty("likeCount", 0);
     }
 
-    public Post(User usr, String image){
+    protected Post(User usr, String image){
         this(usr, image, null);
     }
 
@@ -37,7 +37,8 @@ public class Post {
 
     //TODO premier jet, rendre thread safe
     public void like(User usr) throws EntityNotFoundException {
-        Entity c = this.datastore.get(this.entity.getKey());
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity c = datastore.get(this.entity.getKey());
         HashSet<String> likers = (HashSet<String>) c.getProperty("likers");
         likers.add(usr.getId());
         c.setProperty("likers",likers);
@@ -52,7 +53,8 @@ public class Post {
 
     //TODO premier jet, rendre thread safe
     public void unlike(User usr) throws EntityNotFoundException {
-        Entity c = this.datastore.get(this.entity.getKey());
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity c = datastore.get(this.entity.getKey());
         HashSet<String> likers = (HashSet<String>) c.getProperty("likers");
         likers.remove(usr.getId());
         c.setProperty("likers",likers);
