@@ -1,6 +1,19 @@
 indexes:
-- kind: Friend 
+- kind: Post
   properties: 
-    - name: friends 
-    - name: age 
+    - name: User
+      direction: asc
+    - name: timestamp
+      direction: desc
+
+- kind: User
+  properties:
+    - name: following
+    direction: asc
+
+- kind: User
+  properties:
+    - name: posts
+
+
     
