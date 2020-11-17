@@ -5,11 +5,8 @@ import com.google.appengine.api.datastore.*;
 import java.util.HashSet;
 
 public class User {
-    private String name;
-    private String email;
-    private String bio;
-    private String avatarUrl;
-    private Entity entity;
+    
+    private Key key;
 
     public User(String name, String email) {
         this(name, email, null, null, null);
@@ -18,24 +15,19 @@ public class User {
     public User(String name, String email, String bio, String avatarUrl, String token) {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
 
-        this.entity = new Entity("User", email);
-        this.entity.setProperty("name", name);
-        this.entity.setProperty("avatarUrl", avatarUrl);
-        this.entity.setProperty("email", email);
-        this.entity.setProperty("bio", bio);
-        this.entity.setProperty("posts", new HashSet<String>());
-        this.entity.setProperty("following", new HashSet<String>());
-        this.entity.setProperty("followers", new HashSet<String>());
+        Entity entity = new Entity("User", email);
+        entity.setProperty("name", name);
+        entity.setProperty("avatarUrl", avatarUrl);
+        entity.setProperty("email", email);
+        entity.setProperty("bio", bio);
+        entity.setProperty("posts", new HashSet<Key>());
+        entity.setProperty("following", new HashSet<Key>());
+        entity.setProperty("followers", new HashSet<Key>());
 
         //TODO vérifier token glogin, passer par un hash
-        this.entity.setProperty("token", token);
+        entity.setProperty("token", token);
 
-        this.name = name;
-        this.email = email;
-        this.bio = bio;
-        this.avatarUrl = avatarUrl;
-
-        datastore.put(this.entity);
+        this.key = datastore.put(entity);
     }
 
     /**
@@ -46,20 +38,20 @@ public class User {
     public static void follow(User a, User b) throws EntityNotFoundException {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entityA = datastore.get(a.getEntity().getKey());
-        Entity entityB = datastore.get(b.getEntity().getKey());
+        Entity entityA = datastore.get(a.getKey());
+        Entity entityB = datastore.get(b.getKey());
 
         //retrieve the list of users followed by user a
-        HashSet<String> following = (HashSet<String>) entityA.getProperty("following");
+        HashSet<Key> following = (HashSet<Key>) entityA.getProperty("following");
         //adding user b to the list
-        following.add(b.getId());
+        following.add(b.getKey());
         //updating the entity with the new list
         entityA.setProperty("following", following);
 
         //retrieve the list of users following user b
-        HashSet<String> followers = (HashSet<String>) entityB.getProperty("followers");
+        HashSet<Key> followers = (HashSet<Key>) entityB.getProperty("followers");
         //adding a to the list of followers
-        followers.add(a.getId());
+        followers.add(a.getKey());
         //updating the entity with the new list
         entityB.setProperty("followers", followers);
 
@@ -80,17 +72,17 @@ public class User {
      */
     public void post(String image, String description) throws EntityNotFoundException {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        this.entity = datastore.get(this.entity.getKey());
+        Entity entity = datastore.get(this.key);
 
         //create the post
         Post p = new Post(this, image, description);
 
         //retrieve the user's posts list
-        HashSet<String> posts = (HashSet<String>) this.entity.getProperty("posts");
+        HashSet<Key> posts = (HashSet<Key>) entity.getProperty("posts");
         //update the list
-        posts.add(p.getId());
+        posts.add(p.getKey());
         //update the entity woth the new list
-        this.entity.setProperty("posts", posts);
+        entity.setProperty("posts", posts);
     }
 
     /**
@@ -110,20 +102,20 @@ public class User {
     public static void unFollow(User a, User b) throws EntityNotFoundException {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entityA = datastore.get(a.getEntity().getKey());
-        Entity entityB = datastore.get(b.getEntity().getKey());
+        Entity entityA = datastore.get(a.getKey());
+        Entity entityB = datastore.get(b.getKey());
 
         //retrieve the list of users followed by user a
-        HashSet<String> following = (HashSet<String>) entityA.getProperty("following");
+        HashSet<Key> following = (HashSet<Key>) entityA.getProperty("following");
         //removing user b from the list
-        following.remove(b.getId());
+        following.remove(b.getKey());
         //updating the entity with the new list
         entityA.setProperty("following", following);
 
         //retrieve the list of users following user b
-        HashSet<String> followers = (HashSet<String>) entityB.getProperty("followers");
+        HashSet<Key> followers = (HashSet<Key>) entityB.getProperty("followers");
         //removing a from the list of followers
-        followers.remove(a.getId());
+        followers.remove(a.getKey());
         //updating the entity with the new list
         entityB.setProperty("followers", followers);
 
@@ -141,61 +133,86 @@ public class User {
      * remove a post
      * @param postId the id of the post to remove
      */
-    public void removePost(String postId) throws EntityNotFoundException {
+    public void removePost(Key postId) throws EntityNotFoundException {
         //retrieve the datastore and the entity corresponding to the user
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        this.entity = datastore.get(this.entity.getKey());
+        Entity entity = datastore.get(this.key);
 
         //retrieve the list of posts by the user
-        HashSet<String> posts = (HashSet<String>) this.entity.getProperty("posts");
+        HashSet<Key> posts = (HashSet<Key>) entity.getProperty("posts");
         //removing the post from the list of posts
         posts.remove(postId);
         //updating the entity with the new list
-        this.entity.setProperty("posts", posts);
+        entity.setProperty("posts", posts);
     }
 
-    public Entity getEntity(){
-        return this.entity;
+    public String getName() throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        return (String) entity.getProperty("name");
     }
 
-    public String getName() {
-        return name;
+    public void setName(String name) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        entity.setProperty("name", name);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getEmail() throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        return (String) entity.getProperty("email");
     }
 
-    public String getEmail() {
-        return email;
+    public void setEmail(String email) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        entity.setProperty("email", email);
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getBio() throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        return (String) entity.getProperty("bio");
     }
 
-    public String getBio() {
-        return bio;
+    public void setBio(String bio) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        entity.setProperty("bio", bio);
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public String getAvatarUrl() throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        return (String) entity.getProperty("avatarUrl");
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public void setAvatarUrl(String avatarUrl) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity entity = datastore.get(this.key);
+
+        entity.setProperty("avatarUrl", avatarUrl);
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public Key getKey(){
+        return this.key;
     }
 
-    public String getId(){
-        return this.email;
-    }
-
-    public static String getUserId(User usr){
-        return usr.getEmail();
-    }
 }
 
