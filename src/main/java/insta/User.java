@@ -20,6 +20,7 @@ public class User {
         entity.setProperty("avatarUrl", avatarUrl);
         entity.setProperty("email", email);
         entity.setProperty("bio", bio);
+        entity.setProperty("googletoken", "");
         entity.setProperty("posts", new HashSet<Key>());
         entity.setProperty("following", new HashSet<Key>());
         entity.setProperty("followers", new HashSet<Key>());
@@ -71,11 +72,22 @@ public class User {
      * @param description description of the image
      */
     public void post(String image, String description) throws EntityNotFoundException {
+        User.post(this.key, image, description);
+    }
+
+    /**
+     * create a post with the given image and description attributed to the user associated to the userKey
+     * @param userKey the datastore Key of the user
+     * @param image the image of the post
+     * @param description the description of the post
+     * @throws EntityNotFoundException
+     */
+    public static void post(Key userKey, String image, String description) throws EntityNotFoundException {
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entity = datastore.get(this.key);
+        Entity entity = datastore.get(userKey);
 
         //create the post
-        Post p = new Post(this, image, description);
+        Post p = new Post(userKey, image, description);
 
         //retrieve the user's posts list
         HashSet<Key> posts = (HashSet<Key>) entity.getProperty("posts");
@@ -91,7 +103,7 @@ public class User {
      * @throws EntityNotFoundException
      */
     public void post(String image) throws EntityNotFoundException {
-        this.post(image, null);
+        User.post(this.key,image, null);
     }
 
     /**

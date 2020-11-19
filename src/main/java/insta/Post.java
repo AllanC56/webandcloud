@@ -8,22 +8,28 @@ import java.util.HashSet;
 
 public class Post {
     private Key key;
-    private Entity entity;
 
     protected Post(User usr, String image, String desc){
+        this(usr.getKey(), image, desc);
+    }
+
+    protected Post(Key userKey, String image, String desc){
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+
         Timestamp ts = new Timestamp(new Date().getTime());
-        String id =  usr.getKey().toString() + ts;
+        String id =  userKey.toString() + ts;
+        Entity entity = new Entity("post", id);
 
-        this.entity = new Entity("Post",id);
-        this.entity.setProperty("User",usr.getKey());
-        this.entity.setProperty("description", desc);
-        this.entity.setProperty("timestamp", ts);
-        this.entity.setProperty("image", image);
-        this.entity.setProperty("likers",new HashSet<Key>());
-        this.entity.setProperty("likeCount", 0);
+        entity = new Entity("Post",id);
+        entity.setProperty("User",userKey);
+        entity.setProperty("description", desc);
+        entity.setProperty("timestamp", ts);
+        entity.setProperty("image", image);
+        //TODO à verifier, datastore ne supporte pas hashSet comme type, comment gérer plusieurs valeurs pour une propriété
+        entity.setProperty("likers",new HashSet<Key>());
+        entity.setProperty("likeCount", 0);
 
-        this.key = datastore.put(this.entity);
+        this.key = datastore.put(entity);
     }
 
     protected Post(User usr, String image){
