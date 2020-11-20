@@ -2,8 +2,6 @@ package insta.api;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import insta.Post;
 import insta.User;
 
 import javax.servlet.annotation.WebServlet;
@@ -12,38 +10,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(
-        name= "PostAPI",
-        description= "PostAPI: Post a post",
-        urlPatterns = "/api/post"
+@WebServlet (
+        name = "FollowUserServlet",
+        description = "FollowUserServlet: follow a user",
+        urlPatterns = "api/follow"
 )
-public class PostServlet extends HttpServlet {
+public class FollowUserServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String image = req.getHeader("image");
-        String description = req.getHeader("description");
-        String userEmail = req.getHeader("email");
-
         String googleToken = req.getHeader("connectionToken");
+        String userEmail = req.getHeader("userEmail");
+
+        //retrieve the email of the user to follow
+        String userToFollow = req.getHeader("userToFollow");
 
         boolean userIdentityVerified = User.googleAuthentification(googleToken);
 
         if(!userIdentityVerified){
             resp.setStatus(401);
         } else {
-
-            Key userKey = User.getKey(userEmail);
+            Key followingUserKey = User.getKey(userEmail);
+            Key followedUserKey = User.getKey(userToFollow);
 
             try {
-                User.post(userKey, image, description);
+                User.follow(followingUserKey, followedUserKey);
             } catch (EntityNotFoundException e) {
                 e.printStackTrace();
-
                 resp.setStatus(500);
             }
 
-            resp.setStatus(201);
+            resp.setStatus(202);
         }
+
     }
 }
