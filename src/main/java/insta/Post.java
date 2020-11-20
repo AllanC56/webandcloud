@@ -128,6 +128,10 @@ public class Post {
         return this.key;
     }
 
+    public static Key getKey(String postId){
+        return KeyFactory.createKey("Post", postId);
+    }
+
     public static Key getPostId(Post p){
         return p.getKey();
     }

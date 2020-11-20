@@ -33,37 +33,37 @@ public class User {
 
     /**
      * create a following association between user a and b, user a follows user  b on tiny Insta
-     * @param a user who wants to follow b
-     * @param b user being followed by a
+     * @param followingUser user who wants to follow b
+     * @param followedUser user being followed by a
      */
-    public static void follow(User a, User b) throws EntityNotFoundException {
+    public static void follow(Key followingUser, Key followedUser) throws EntityNotFoundException {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entityA = datastore.get(a.getKey());
-        Entity entityB = datastore.get(b.getKey());
+
+        Entity entityA = datastore.get(followingUser);
+        Entity entityB = datastore.get(followedUser);
 
         //retrieve the list of users followed by user a
         HashSet<Key> following = (HashSet<Key>) entityA.getProperty("following");
         //adding user b to the list
-        following.add(b.getKey());
+        following.add(followedUser);
         //updating the entity with the new list
         entityA.setProperty("following", following);
 
         //retrieve the list of users following user b
         HashSet<Key> followers = (HashSet<Key>) entityB.getProperty("followers");
         //adding a to the list of followers
-        followers.add(a.getKey());
+        followers.add(followingUser);
         //updating the entity with the new list
         entityB.setProperty("followers", followers);
-
     }
 
     /**
      * follow the user given in parameter
-     * @param a user to follow
+     * @param followedUser user to follow
      */
-    public void follow(User a) throws EntityNotFoundException {
-        follow(this, a);
+    public void follow(User followedUser) throws EntityNotFoundException {
+        User.follow(this.key, followedUser.getKey());
     }
 
     /**
