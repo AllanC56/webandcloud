@@ -21,20 +21,29 @@ public class PostServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String image = req.getParameter("image");
-        String description = req.getParameter("description");
+        String image = req.getHeader("image");
+        String description = req.getHeader("description");
+        String userEmail = req.getHeader("email");
 
-        //TODO a modifier, pour l'instant juste le mail de l'utilisateur
-        String userId = req.getParameter("userId");
-        Key k = KeyFactory.createKey("User", userId);
+        String googleToken = req.getHeader("userId");
 
+        boolean userIdentityVerified = User.googleAuthentification(googleToken);
 
-        try {
-            User.post(k, image, description);
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
+        if(!userIdentityVerified){
+            resp.setStatus(401);
+        } else {
+
+            Key userKey = User.getKey(userEmail);
+
+            try {
+                User.post(userKey, image, description);
+            } catch (EntityNotFoundException e) {
+                e.printStackTrace();
+
+                resp.setStatus(500);
+            }
+
+            resp.setStatus(201);
         }
-
-        resp.setStatus(201);
     }
 }

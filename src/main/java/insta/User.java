@@ -226,5 +226,14 @@ public class User {
         return this.key;
     }
 
+    public static Key getKey(String email){
+        return KeyFactory.createKey("User", email);
+    }
+
+    public static boolean googleAuthentification(String googleToken){
+        //TODO
+        return true;
+    }
+
 }
 
