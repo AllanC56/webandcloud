@@ -2,6 +2,8 @@ package insta;
 
 import com.google.appengine.api.datastore.*;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 
 public class User {
@@ -20,13 +22,12 @@ public class User {
         entity.setProperty("avatarUrl", avatarUrl);
         entity.setProperty("email", email);
         entity.setProperty("bio", bio);
-        entity.setProperty("googletoken", "");
-        entity.setProperty("posts", new HashSet<Key>());
-        entity.setProperty("following", new HashSet<Key>());
-        entity.setProperty("followers", new HashSet<Key>());
 
         //TODO vérifier token glogin, passer par un hash
-        entity.setProperty("token", token);
+        entity.setProperty("googleToken", "");
+
+        entity.setProperty("lastTimelineRetrieval", new Timestamp(0));
+
 
         this.key = datastore.put(entity);
     }
@@ -40,22 +41,11 @@ public class User {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
 
-        Entity entityA = datastore.get(followingUser);
-        Entity entityB = datastore.get(followedUser);
+        Entity follow = new Entity("follow",followingUser.toString() + followedUser.toString());
+        follow.setProperty("followers", followingUser);
+        follow.setProperty("following", followedUser);
 
-        //retrieve the list of users followed by user a
-        HashSet<Key> following = (HashSet<Key>) entityA.getProperty("following");
-        //adding user b to the list
-        following.add(followedUser);
-        //updating the entity with the new list
-        entityA.setProperty("following", following);
-
-        //retrieve the list of users following user b
-        HashSet<Key> followers = (HashSet<Key>) entityB.getProperty("followers");
-        //adding a to the list of followers
-        followers.add(followingUser);
-        //updating the entity with the new list
-        entityB.setProperty("followers", followers);
+        datastore.put(follow);
     }
 
     /**
@@ -88,13 +78,6 @@ public class User {
 
         //create the post
         Post p = new Post(userKey, image, description);
-
-        //retrieve the user's posts list
-        HashSet<Key> posts = (HashSet<Key>) entity.getProperty("posts");
-        //update the list
-        posts.add(p.getKey());
-        //update the entity woth the new list
-        entity.setProperty("posts", posts);
     }
 
     /**
@@ -108,29 +91,15 @@ public class User {
 
     /**
      * remove a following association between user a and b, user a follows user  b on tiny Insta
-     * @param a user who wants to unfollow b
-     * @param b user being followed by a
+     * @param follower user who wants to unfollow b
+     * @param following user being followed by a
      */
-    public static void unFollow(User a, User b) throws EntityNotFoundException {
+    public static void unFollow(Key follower, Key following) throws EntityNotFoundException {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
-        Entity entityA = datastore.get(a.getKey());
-        Entity entityB = datastore.get(b.getKey());
+        Key followLink = KeyFactory.createKey("Post", follower.toString() + following.toString());
 
-        //retrieve the list of users followed by user a
-        HashSet<Key> following = (HashSet<Key>) entityA.getProperty("following");
-        //removing user b from the list
-        following.remove(b.getKey());
-        //updating the entity with the new list
-        entityA.setProperty("following", following);
-
-        //retrieve the list of users following user b
-        HashSet<Key> followers = (HashSet<Key>) entityB.getProperty("followers");
-        //removing a from the list of followers
-        followers.remove(a.getKey());
-        //updating the entity with the new list
-        entityB.setProperty("followers", followers);
-
+        datastore.delete(followLink);
     }
 
     /**
@@ -138,7 +107,7 @@ public class User {
      * @param a user to follow
      */
     public void unFollow(User a) throws EntityNotFoundException {
-        unFollow(this, a);
+        User.unFollow(this.getKey(), a.getKey());
     }
 
     /**
@@ -235,5 +204,29 @@ public class User {
         return true;
     }
 
+    public static Timestamp getLastTimelineretrival(Key userKey) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity user = datastore.get(userKey);
+
+        return (Timestamp) user.getProperty("lastTimelineRetrieval");
+    }
+
+    public static void updateLastTimelineRetrieval(Key userKey) throws EntityNotFoundException {
+        //retrieve the datastore and the entity corresponding to the user
+        DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+        Entity user = datastore.get(userKey);
+
+        Entity newUser = new Entity("User", userKey.toString());
+        newUser.setProperty("name", user.getProperty("name"));
+        newUser.setProperty("avatarUrl", user.getProperty("avatarUrl"));
+        newUser.setProperty("email", user.getProperty("email"));
+        newUser.setProperty("bio", user.getProperty("bio"));
+        newUser.setProperty("googleToken", user.getProperty("googleToken"));
+        newUser.setProperty("lastTimelineRetrieval", new Timestamp(new Date().getTime()));
+
+        datastore.put(newUser);
+
+    }
 }
 
