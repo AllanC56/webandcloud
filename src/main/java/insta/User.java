@@ -41,8 +41,8 @@ public class User {
         //retrieve the datastore and the entities corresponding to the users
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
 
-        Entity follow = new Entity("follow",followingUser.toString() + followedUser.toString());
-        follow.setProperty("followers", followingUser);
+        Entity follow = new Entity("Follow",followingUser.toString() + followedUser.toString());
+        follow.setProperty("follower", followingUser);
         follow.setProperty("following", followedUser);
 
         datastore.put(follow);
