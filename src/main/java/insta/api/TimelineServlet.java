@@ -27,10 +27,13 @@ public class TimelineServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException {
-        String googleToken = req.getHeader("connectionToken");
+        String googleToken = req.getHeader("googleToken");
         String userEmail = req.getHeader("userEmail");
 
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
+
+        System.out.println("Google token : " + googleToken);
+        System.out.println("USer Email : " + userEmail);
 
         boolean userIdentityVerified = User.googleAuthentification(googleToken);
 
@@ -74,5 +77,6 @@ public class TimelineServlet extends HttpServlet {
 
             response.setStatus(202);
         }
+
     }
 }

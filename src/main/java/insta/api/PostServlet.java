@@ -23,9 +23,13 @@ public class PostServlet extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String image = req.getHeader("image");
         String description = req.getHeader("description");
-        String userEmail = req.getHeader("email");
+        String userEmail = req.getHeader("userEmail");
 
-        String googleToken = req.getHeader("connectionToken");
+        String googleToken = req.getHeader("googleToken");
+
+        System.out.println("userEmail" + userEmail);
+        System.out.println("image : " + image);
+        System.out.println("description : " + description);
 
         boolean userIdentityVerified = User.googleAuthentification(googleToken);
 
