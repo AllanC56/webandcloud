@@ -52,17 +52,17 @@ public class TimelineServlet extends HttpServlet {
                 User.updateLastTimelineRetrieval(userKey);
 
                 Query queryFollowed = new Query("Follow")
-                        .setFilter(CompositeFilterOperator.and(
-                                new FilterPredicate("follower",Query.FilterOperator.EQUAL, userKey),
-                                new FilterPredicate("timestamp", FilterOperator.GREATER_THAN, oldTs)
-                        ));
+                        .setFilter(new FilterPredicate("follower",Query.FilterOperator.EQUAL, userKey));
                 PreparedQuery preparedFollowedQuery = datastore.prepare(queryFollowed);
                 List<Entity> followedUsers = preparedFollowedQuery.asList(FetchOptions.Builder.withDefaults());
 
                 List<Entity> result = new ArrayList<Entity>();
 
                 for(Entity usr : followedUsers) {
-                    Query queryPost = new Query("Post").setFilter(new Query.FilterPredicate("timestamp", Query.FilterOperator.GREATER_THAN_OR_EQUAL, oldTs));
+                    Query queryPost = new Query("Post").
+                            setFilter(CompositeFilterOperator.and(
+                                    new FilterPredicate("timestamp", Query.FilterOperator.GREATER_THAN_OR_EQUAL, oldTs),
+                                    new FilterPredicate("User", FilterOperator.IN, followedUsers)));
                     PreparedQuery preparedQuery = datastore.prepare(queryPost);
                     result.addAll(preparedQuery.asList(FetchOptions.Builder.withDefaults()));
                 }
