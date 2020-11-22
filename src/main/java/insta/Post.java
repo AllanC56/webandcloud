@@ -27,13 +27,4 @@ public class Post {
         this.timestamp = (Date) post.getProperty("timestamp");
     }
 
-
-    public Key getKey(){
-        return this.postKey;
-    }
-
-    public static Key getPostId(Post p){
-        return p.getKey();
-    }
-
 }

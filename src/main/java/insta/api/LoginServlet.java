@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.appengine.api.datastore.*;
 import insta.User;
+import insta.datastore.UserEntity;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,10 +26,10 @@ public class LoginServlet extends HttpServlet {
         String userEmail = req.getHeader("userEmail");
         String userName = req.getHeader("userName");
 
-        User userVerified = User.googleAuthentification(googleToken);
+        Entity userVerified = UserEntity.googleAuthentification(googleToken);
 
         if( userVerified == null){
-            User createUser = new User(userName, userEmail, googleToken);
+            UserEntity.createUser(userName, userEmail, null, null, googleToken);
         }
 
         resp.setStatus(200);
