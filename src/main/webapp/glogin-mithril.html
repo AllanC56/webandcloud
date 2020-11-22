@@ -42,9 +42,9 @@ var Profile={
 							oninput: function (e) {image = e.target.value}, value: image
 						}),
             m("label.label", "Description"),
-            m("input.input[placeholder=Description]", {
-							oninput: function (e) {description = e.target.value}, value: description})
-					]),
+            m("textarea.textarea", {"rows":"5","cols":"60","name":"description","placeholder":"Description"},
+  				""
+			)]),
 					m("row",
             m("button.button[type=button]",{ onclick: () => Profile.postImage(image,description)}, "Poster"),
 						m("button.button[type=button]", {onclick: () => modalContainer.remove() }, "annuler")
@@ -65,13 +65,11 @@ var Profile={
   list:[],
   view: function(){
 	return m('div', {class:'container'}, [
-  	  m("h1", {class: 'title'}, "name:"+Profile.name),
-	  m("h2", {class: 'subtitle'}, "email:"+Profile.email),
+  	  m("h1", {class: 'title'}, Profile.name),
+	  m("h2", {class: 'subtitle'}, Profile.email),
 	  m("img",{"src":Profile.url}),
 	  m("button",{class:"button", onclick: function(e) { Profile.loadList()}},"Msgs"),
-		m('button.button.subtitle',
-	 { onclick: () => Profile.modal() },
-	 'Poster une image'),
+	  m('button.button', { onclick: () => Profile.modal() }, 'Poster une image'),
 	  m("div",m(PostView,{profile: Profile}))
 	])
   },

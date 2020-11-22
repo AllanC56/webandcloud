@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 
+/* Classe qui fournit des fonctions utiles partout */
 public class Misc {
 
     public static List<Entity> parseQuery(List<Entity> input){
@@ -20,9 +21,9 @@ public class Misc {
         else {
             Entity pivot = array.get(0);
 
-            List<Entity> less = new LinkedList<Entity>();
-            List<Entity> pivotList = new LinkedList<Entity>();
-            List<Entity> more = new LinkedList<Entity>();
+            List<Entity> less = new LinkedList<>();
+            List<Entity> pivotList = new LinkedList<>();
+            List<Entity> more = new LinkedList<>();
 
             // Partition
             for (Entity i: array) {
