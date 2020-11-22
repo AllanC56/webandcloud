@@ -2,7 +2,6 @@ package insta;
 
 import com.google.appengine.api.datastore.*;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Post {
@@ -15,7 +14,7 @@ public class Post {
     protected Post(Key userKey, String image, String desc){
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
 
-        Timestamp ts = new Timestamp(new Date().getTime());
+        Date ts = new Date();
         String id =  userKey.toString() + ts;
         Entity entity = new Entity("post", id);
 
