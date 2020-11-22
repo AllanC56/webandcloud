@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import insta.Post;
 import insta.User;
 import insta.datastore.PostEntity;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 @WebServlet(
@@ -47,20 +49,31 @@ public class PostServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException {
         String googleToken = req.getHeader("googleToken");
         String posts = req.getHeader("posts");
 
         String[] postsList = posts.split("/");
-
         Entity userIdentityVerified = UserEntity.googleAuthentification(googleToken);
 
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        LinkedList<Post> postsInfo = new LinkedList<Post>();
+
         if(userIdentityVerified == null){
-            resp.setStatus(401);
+            response.setStatus(401);
         } else {
             for (String post : postsList){
-
+                try {
+                    postsInfo.add(PostEntity.getPost(post));
+                } catch (EntityNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
+        response.getWriter().print(new Gson().toJson(postsInfo));
+
     }
 }

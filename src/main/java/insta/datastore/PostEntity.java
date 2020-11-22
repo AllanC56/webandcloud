@@ -1,6 +1,7 @@
 package insta.datastore;
 
 import com.google.appengine.api.datastore.*;
+import insta.Post;
 
 import java.util.Date;
 
@@ -56,4 +57,15 @@ public class PostEntity {
         return KeyFactory.createKey("Post", postId);
     }
 
+    /**
+     * return the post corresponding to the key from the datastore
+     * @param key the post's key
+     * @return the post
+     * @throws EntityNotFoundException
+     */
+    public static Post getPost(String key) throws EntityNotFoundException {
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        return new Post(datastore.get(PostEntity.getKey(key)));
+    }
 }
