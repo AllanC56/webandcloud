@@ -25,13 +25,13 @@ public class UnlikeServlet extends HttpServlet {
 
         String googleToken = req.getHeader("connectionToken");
 
-        boolean userIdentityVerified = User.googleAuthentification(googleToken);
+        User userIdentityVerified = User.googleAuthentification(googleToken);
 
-        if(!userIdentityVerified){
+        if(userIdentityVerified != null){
             resp.setStatus(401);
         } else {
 
-            Key userKey = User.getKey(userEmail);
+            Key userKey = userIdentityVerified.getKey();
             Key postKey = Post.getKey(postId);
 
             try {

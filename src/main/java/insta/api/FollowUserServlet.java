@@ -25,9 +25,9 @@ public class FollowUserServlet extends HttpServlet {
         //retrieve the email of the user to follow
         String userToFollow = req.getHeader("userToFollow");
 
-        boolean userIdentityVerified = User.googleAuthentification(googleToken);
+        User userIdentityVerified = User.googleAuthentification(googleToken);
 
-        if(!userIdentityVerified){
+        if(userIdentityVerified != null){
             resp.setStatus(401);
         } else {
             Key followingUserKey = User.getKey(userEmail);

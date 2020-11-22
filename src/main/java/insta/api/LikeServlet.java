@@ -25,9 +25,9 @@ public class LikeServlet extends HttpServlet {
 
         String googleToken = req.getHeader("connectionToken");
 
-        boolean userIdentityVerified = User.googleAuthentification(googleToken);
+        User userIdentityVerified = User.googleAuthentification(googleToken);
 
-        if(!userIdentityVerified){
+        if(userIdentityVerified != null){
             resp.setStatus(401);
         } else {
 

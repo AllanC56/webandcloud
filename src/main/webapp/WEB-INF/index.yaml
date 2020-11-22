@@ -8,12 +8,7 @@ indexes:
 
 - kind: User
   properties:
-    - name: following
-    direction: asc
-
-- kind: User
-  properties:
-    - name: posts
+    - name: googleToken
 
 
     

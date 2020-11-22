@@ -180,12 +180,25 @@ var PostView = {
 
 
 function onSignIn(googleUser) {
+
   var profile = googleUser.getBasicProfile();
-  Profile.name=profile.getName();
+	Profile.name=profile.getName();
   Profile.email=profile.getEmail();
   Profile.ID=googleUser.getAuthResponse().id_token;
   Profile.url=profile.getImageUrl();
-  m.route.set("/secret")
+
+	m.route.set("/profile")
+
+	return m.request({
+			method: "GET",
+			url: "/api/login",
+			headers : {
+				"googleToken": Profile.ID,
+				"userEmail": Profile.email,
+				"userName": Profile.name
+			}
+			})
+
 }
 
 var Login = {

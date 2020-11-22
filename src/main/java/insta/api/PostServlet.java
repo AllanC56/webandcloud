@@ -31,9 +31,9 @@ public class PostServlet extends HttpServlet {
         System.out.println("image : " + image);
         System.out.println("description : " + description);
 
-        boolean userIdentityVerified = User.googleAuthentification(googleToken);
+        User userIdentityVerified = User.googleAuthentification(googleToken);
 
-        if(!userIdentityVerified){
+        if(userIdentityVerified == null){
             resp.setStatus(401);
         } else {
 

@@ -1,5 +1,6 @@
 package insta.api;
 
+import com.google.api.client.util.DateTime;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import endpoints.repackaged.com.google.api.Http;
@@ -35,9 +36,9 @@ public class TimelineServlet extends HttpServlet {
         System.out.println("Google token : " + googleToken);
         System.out.println("USer Email : " + userEmail);
 
-        boolean userIdentityVerified = User.googleAuthentification(googleToken);
+        User userIdentityVerified = User.googleAuthentification(googleToken);
 
-        if(!userIdentityVerified){
+        if(userIdentityVerified == null){
             response.setStatus(401);
         } else {
 
@@ -47,7 +48,7 @@ public class TimelineServlet extends HttpServlet {
             try {
                 Key userKey = KeyFactory.createKey("User",userEmail);
 
-                Timestamp oldTs = User.getLastTimelineretrival(userKey);
+                Date oldTs = User.getLastTimelineretrival(userKey);
                 User.updateLastTimelineRetrieval(userKey);
 
                 Query queryFollowed = new Query("Follow")

@@ -20,12 +20,17 @@ import java.io.IOException;
 public class LoginServlet extends HttpServlet {
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String googleToken = req.getParameter("googleToken");
-        String email = req.getParameter("email");
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String googleToken = req.getHeader("googleToken");
+        String userEmail = req.getHeader("userEmail");
+        String userName = req.getHeader("userName");
 
-        Key k = KeyFactory.createKey("User", email);
+        User userVerified = User.googleAuthentification(googleToken);
 
+        if( userVerified == null){
+            User createUser = new User(userName, userEmail, googleToken);
+        }
 
+        resp.setStatus(200);
     }
 }

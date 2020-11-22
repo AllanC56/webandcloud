@@ -1,8 +1,9 @@
 package insta;
 
+import com.google.api.client.util.DateTime;
 import com.google.appengine.api.datastore.*;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -10,8 +11,8 @@ public class User {
     
     private Key key;
 
-    public User(String name, String email) {
-        this(name, email, null, null, null);
+    public User(String name, String email, String googleToken) {
+        this(name, email, null, null, googleToken);
     }
 
     public User(String name, String email, String bio, String avatarUrl, String token) {
@@ -24,9 +25,9 @@ public class User {
         entity.setProperty("bio", bio);
 
         //TODO vérifier token glogin, passer par un hash
-        entity.setProperty("googleToken", "");
+        entity.setProperty("googleToken", token);
 
-        entity.setProperty("lastTimelineRetrieval", new Timestamp(0));
+        entity.setProperty("lastTimelineRetrieval", new Date());
 
 
         this.key = datastore.put(entity);
@@ -199,17 +200,32 @@ public class User {
         return KeyFactory.createKey("User", email);
     }
 
-    public static boolean googleAuthentification(String googleToken){
-        //TODO
-        return true;
+    public static User googleAuthentification(String googleToken){
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        Query existUser = new Query("User").setFilter(new Query.FilterPredicate("googleToken",Query.FilterOperator.EQUAL, googleToken));
+        PreparedQuery prepareExistUser = datastore.prepare(existUser);
+        Entity result = prepareExistUser.asSingleEntity();
+
+        if ( result == null ){
+            return null;
+        } else {
+            String name = (String) result.getProperty("name");
+            String email = (String) result.getProperty("email");
+            String bio = (String) result.getProperty("bio");
+            String avatarUrl = (String) result.getProperty("avatarUrl");
+            String token = (String) result.getProperty("googleToken");
+
+            return new User(name, email, bio, avatarUrl, token);
+        }
     }
 
-    public static Timestamp getLastTimelineretrival(Key userKey) throws EntityNotFoundException {
+    public static Date getLastTimelineretrival(Key userKey) throws EntityNotFoundException {
         //retrieve the datastore and the entity corresponding to the user
         DatastoreService datastore  = DatastoreServiceFactory.getDatastoreService();
         Entity user = datastore.get(userKey);
 
-        return (Timestamp) user.getProperty("lastTimelineRetrieval");
+        return (Date) user.getProperty("lastTimelineRetrieval");
     }
 
     public static void updateLastTimelineRetrieval(Key userKey) throws EntityNotFoundException {
@@ -223,7 +239,7 @@ public class User {
         newUser.setProperty("email", user.getProperty("email"));
         newUser.setProperty("bio", user.getProperty("bio"));
         newUser.setProperty("googleToken", user.getProperty("googleToken"));
-        newUser.setProperty("lastTimelineRetrieval", new Timestamp(new Date().getTime()));
+        newUser.setProperty("lastTimelineRetrieval", new Date());
 
         datastore.put(newUser);
 
