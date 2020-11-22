@@ -1,8 +1,10 @@
 package insta.api;
 
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import insta.User;
+import insta.datastore.UserEntity;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,16 +27,16 @@ public class FollowUserServlet extends HttpServlet {
         //retrieve the email of the user to follow
         String userToFollow = req.getHeader("userToFollow");
 
-        User userIdentityVerified = User.googleAuthentification(googleToken);
+        Entity userIdentityVerified = UserEntity.googleAuthentification(googleToken);
 
         if(userIdentityVerified != null){
             resp.setStatus(401);
         } else {
-            Key followingUserKey = User.getKey(userEmail);
-            Key followedUserKey = User.getKey(userToFollow);
+            Key followingUserKey = UserEntity.getKey(userEmail);
+            Key followedUserKey = UserEntity.getKey(userToFollow);
 
             try {
-                User.follow(followingUserKey, followedUserKey);
+                UserEntity.follow(followingUserKey, followedUserKey);
             } catch (EntityNotFoundException e) {
                 e.printStackTrace();
                 resp.setStatus(500);

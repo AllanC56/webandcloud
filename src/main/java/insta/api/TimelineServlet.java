@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import com.google.appengine.api.datastore.Query.*;
+import insta.datastore.UserEntity;
 
 @WebServlet(
         name= "timeline",
@@ -36,7 +37,7 @@ public class TimelineServlet extends HttpServlet {
         System.out.println("Google token : " + googleToken);
         System.out.println("USer Email : " + userEmail);
 
-        User userIdentityVerified = User.googleAuthentification(googleToken);
+        Entity userIdentityVerified = UserEntity.googleAuthentification(googleToken);
 
         if(userIdentityVerified == null){
             response.setStatus(401);
@@ -48,8 +49,8 @@ public class TimelineServlet extends HttpServlet {
             try {
                 Key userKey = KeyFactory.createKey("User",userEmail);
 
-                Date oldTs = User.getLastTimelineretrival(userKey);
-                User.updateLastTimelineRetrieval(userKey);
+                Date oldTs = UserEntity.getLastTimelineretrival(userKey);
+                UserEntity.updateLastTimelineRetrieval(userKey);
 
                 Query queryFollowed = new Query("Follow")
                         .setFilter(new FilterPredicate("follower",Query.FilterOperator.EQUAL, userKey));

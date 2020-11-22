@@ -1,9 +1,12 @@
 package insta.api;
 
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import insta.Post;
 import insta.User;
+import insta.datastore.PostEntity;
+import insta.datastore.UserEntity;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,17 +28,17 @@ public class UnlikeServlet extends HttpServlet {
 
         String googleToken = req.getHeader("connectionToken");
 
-        User userIdentityVerified = User.googleAuthentification(googleToken);
+        Entity userIdentityVerified = UserEntity.googleAuthentification(googleToken);
 
         if(userIdentityVerified != null){
             resp.setStatus(401);
         } else {
 
             Key userKey = userIdentityVerified.getKey();
-            Key postKey = Post.getKey(postId);
+            Key postKey = PostEntity.getKey(postId);
 
             try {
-                Post.unlike(userKey, postKey);
+                PostEntity.unlike(userKey, postKey);
             } catch (EntityNotFoundException e) {
                 e.printStackTrace();
 
