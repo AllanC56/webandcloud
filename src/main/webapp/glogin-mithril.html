@@ -31,10 +31,14 @@ var Profile={
 			m('.modal-content',
 				m('.box',
 					m('.title.has-text-centered', 'Créer un Post',
-					m('.subtitle', 'some content here')),
+					m('.subtitle', 'Sélectionnez une image et entrez une description')),
 					m("form", [
             m("label.label", "image"),
             m("input.input[type=text][placeholder=image]", {
+							oninput: function (e) {image = e.target.value}, value: image
+						}),
+			m("label.label", "image (seulement au format PNG/JPEG)"),
+			m("input.input[type=file][placeholder=image-selector][accept=image/png,image/jpeg]", {
 							oninput: function (e) {image = e.target.value}, value: image
 						}),
             m("label.label", "Description"),
